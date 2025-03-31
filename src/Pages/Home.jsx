@@ -1,13 +1,41 @@
 import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { getDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
+import { useEffect } from "react";
+import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 const Home = () => {
   const [user, loading, error] = useAuthState(auth, auth);
+
   const handleLogout = () => {
     auth.signOut();
     location.href = "/login"; // Redirect to login page after logout
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          console.log("User data:", userDoc.data());
+          const userData = userDoc.data();
+          const OnBordingHogyi = userData.OnBordingHogyi;
+          if (OnBordingHogyi) {
+            location.href = "/home"; // Redirect to home page if user data exists
+          } else {
+            location.href = "/onboarding"; // Redirect to onboarding page if user data does not exist
+          }
+        } else {
+          console.log("No such document!");
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
   return (
     <div>

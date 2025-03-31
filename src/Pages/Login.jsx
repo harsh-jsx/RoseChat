@@ -17,7 +17,7 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Login successful!");
       // Redirect to home page after successful login
-      navigate("/");
+      location.href = "/";
     } catch (error) {
       console.error("Error signing in:", error.code);
       if (error.code === "auth/user-not-found") {
