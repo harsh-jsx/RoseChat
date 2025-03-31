@@ -1,7 +1,8 @@
 import React from "react";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { setDoc, doc } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 
 const Register = () => {
@@ -13,11 +14,31 @@ const Register = () => {
     const password = e.target[1].value;
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      const userId = auth.currentUser.uid;
+      await setDoc(doc(db, "users", userId), {
+        email: email,
+        password: password,
+        createdAt: new Date(),
+        username: "",
+        profilePic: "",
+        coverPic: "",
+        about: "",
+        phone: "",
+        status: "Hey there! I am using RoseChat.",
+        OnBordingHogyi: false,
+        isVerfied: false,
+        isOnline: true,
+        isTyping: false,
+        isActive: true,
+        isBlocked: false,
+        isDeleted: false,
+        isAdmin: false,
+        isPremium: false,
+      });
       toast.success("Registration successful!");
-      // Redirect to home page after successful registration
-      navigate("/");
+      location.href = "/"; // Redirect to login page after successful registration
     } catch (error) {
-      console.error("Error signing up:", error.code);
+      console.error("Error signing up:", error);
       if (error.code === "auth/email-already-in-use") {
         toast.error("Email already in use. Please use a Login.");
       } else if (error.code === "auth/invalid-email") {
